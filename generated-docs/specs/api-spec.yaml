@@ -1,0 +1,171 @@
+openapi: 3.0.3
+info:
+  title: RBAC Demo API
+  version: 1.0.0
+  description: >
+    Backend API for the RBAC demo application. Handles authentication and session
+    verification. All endpoints are agent-inferred from the Feature Requirements
+    Specification (see x-source tags).
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+paths:
+  /v1/auth/login:
+    post:
+      operationId: login
+      summary: Authenticate a user
+      description: >
+        Accepts username and password credentials. Returns a token, the user's
+        role, and their display name on success. Returns 401 on invalid credentials.
+        Credentials for demo: user1/password1 (access: Page 1 + Page 2),
+        user2/password2 (access: Page 2 only).
+      x-source: agent-inferred
+      tags:
+        - auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              user1:
+                summary: User1 credentials (has access to Page 1 and Page 2)
+                value:
+                  username: user1
+                  password: password1
+              user2:
+                summary: User2 credentials (has access to Page 2 only)
+                value:
+                  username: user2
+                  password: password2
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              example:
+                token: eyJhbGciOiJIUzI1NiJ9.dXNlcjE.abc123
+                role: user1
+                name: User One
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Invalid credentials
+
+  /v1/auth/me:
+    get:
+      operationId: getMe
+      summary: Get current authenticated user
+      description: >
+        Returns the role and display name for the bearer token provided.
+        Used to verify session state. Requires a valid Bearer token in the
+        Authorization header.
+      x-source: agent-inferred
+      tags:
+        - auth
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Authenticated user info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WhoAmIResponse'
+              example:
+                role: user1
+                name: User One
+        '401':
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Unauthorized
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: user1
+          description: The user's login username
+        password:
+          type: string
+          format: password
+          example: password1
+          description: The user's password (plain text for demo purposes)
+
+    AuthResponse:
+      type: object
+      required:
+        - token
+        - role
+        - name
+      properties:
+        token:
+          type: string
+          description: >
+            Bearer token to include in subsequent authenticated requests.
+            Stored in memory only — never persisted to localStorage/sessionStorage/cookies.
+          example: eyJhbGciOiJIUzI1NiJ9.dXNlcjE.abc123
+        role:
+          type: string
+          enum:
+            - user1
+            - user2
+          description: The user's role, used to determine page access and navigation links
+          example: user1
+        name:
+          type: string
+          description: The user's display name, shown in the navigation bar
+          example: User One
+
+    WhoAmIResponse:
+      type: object
+      required:
+        - role
+        - name
+      properties:
+        role:
+          type: string
+          enum:
+            - user1
+            - user2
+          description: The authenticated user's role
+          example: user1
+        name:
+          type: string
+          description: The authenticated user's display name
+          example: User One
+
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Human-readable error message
+          example: Invalid credentials

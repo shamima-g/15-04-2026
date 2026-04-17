@@ -78,5 +78,10 @@
   },
   "overrides": {
     "tmp": "^0.2.5"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
