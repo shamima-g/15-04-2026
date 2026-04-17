@@ -4,14 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Template repository** for building frontend applications with:
+**RBAC Demo** - A working demonstration of role-based access control (RBAC) in a Next.js frontend application showing login flow, role-filtered navigation, and per-page access enforcement for two user roles.
 
-- Next.js 16 (App Router) + React 19 + TypeScript 5 (strict)
-- Tailwind CSS 4 + Shadcn UI (via MCP server)
-- Vitest + React Testing Library
-- Production-ready API client for OpenAPI-defined REST endpoints
+**Tech Stack:** Next.js 16 + React 19 + TypeScript 5 + Tailwind CSS 4 + Shadcn UI
 
-Users clone this template and use Claude Code to generate features, components, and API integrations.
+**Backend API:** Defined in `generated-docs/specs/api-spec.yaml`. Connects to live REST API.
+
+**Planned Epics:**
+1. Authentication — Login, Logout, and Session Management — Login page, credential validation, in-memory session, logout, and session destruction on refresh
+2. Role-Filtered Navigation — Role-based nav links computed at login, display name and logout button, Page 3 never shown
+3. Page Components and Access Enforcement — Page 1/2/3 components, route protection, redirect logic for unauthenticated and unpermitted users
 
 ## Repository Structure
 
